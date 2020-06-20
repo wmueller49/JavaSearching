@@ -1,5 +1,8 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -19,9 +22,11 @@ public class Node extends JPanel{
 	private boolean isEnd;
 	private boolean isPath;
 	private boolean isPossiblePath;
+	private boolean isWall;
 	
 	private int xCoord;
 	private int yCoord;
+	private int state;
 	
 	private Node previousNode;
 
@@ -29,11 +34,41 @@ public class Node extends JPanel{
 	 * 
 	 */
 	public Node(boolean s, boolean e, int x, int y) {
+		
+		addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				changeState();
+			}
+		});
+		
 		isStart = s;
 		isEnd = e;
 		previousNode = null;
 		setX(x);
 		setY(y);
+		state = 0;
+	}
+	
+	public void reset() {
+		isStart = false;
+		isEnd = false;
+		isPath = false;
+		isPossiblePath = false;
+		isWall = false;
+		state = 0;
+		repaint();
+	}
+	
+	public boolean isStart() {
+		return isStart;
+	}
+	
+	public boolean isEnd() {
+		return isEnd;
+	}
+	
+	public boolean isWall() {
+		return isWall;
 	}
 	
 	public void setStart() {
@@ -72,6 +107,35 @@ public class Node extends JPanel{
 		return yCoord;
 	}
 	
+	public void changeState() {
+		state++;
+		
+		if(state == 0) {
+			isStart = false;
+			isEnd = false;
+		}
+		else if(state == 1) {
+			isStart = true;
+			repaint();
+		}
+		else if(state == 2) {
+			isStart = false;
+			isEnd = true;
+			repaint();
+		}
+		else if(state == 3) {
+			isEnd = false;
+			isWall = true;
+		}
+		else if (state == 4){
+			isStart = false;
+			isEnd = false;
+			isWall = false;
+			repaint();
+			state = 0;
+		}
+	}
+	
 	public int distanceFromEnd(Node end) {
 		
 		int x1 = getX();
@@ -97,6 +161,9 @@ public class Node extends JPanel{
 		}
 		else if(isPath) {
 			this.setBackground(Color.blue);
+		}
+		else if(isWall) {
+			this.setBackground(Color.darkGray);
 		}
 		else {
 			this.setBackground(Color.white);
